@@ -9,10 +9,18 @@ import java.io.*;
 
  
 public class HttpServer {
+
+    private static HttpServer _instance= new  HttpServer();
+    private static Map<String, WebService> services = new HashMap<String, WebService>();
     private static String key = "&apikey=b5ed8d05";
     private static String url = "http://www.omdbapi.com/?t=";
     private static Map<String, String> cache = new HashMap<String, String>();
-    public static void main(String[] args) throws IOException {
+    
+    private HttpServer(){}
+    public static  HttpServer getInstance(){
+        return _instance;
+    }
+    public static void runServer(String[] args) throws IOException {
         boolean newSearch= true;
         ServerSocket serverSocket = null;
         
@@ -38,14 +46,30 @@ public class HttpServer {
             BufferedReader in = new BufferedReader(
                     new InputStreamReader(
                             clientSocket.getInputStream()));
-            String inputLine;
+            String inputLine, outputLine;
             
             boolean firstLine = true;
             String uriStr = "";
             int count = 0;
             String request="";
 
-                
+            outputLine = "";
+
+            try{
+                URI requestUri= new URI(uriStr);
+                String path = requestUri.getPath();
+                if(path.startsWith("/action")){
+                    String webUri = path.replace("/action", "");
+                    if(services.containsKey(webUri)){
+                        String p ="Poner val param";
+                        outputLine = services.get(webUri).handle(p);
+
+                    }
+                }
+            }catch(Exception e){
+
+            }
+            out.print(outputLine);
             while ((inputLine = in.readLine()) != null) {
                 if(firstLine){
                     uriStr = inputLine.split(" ")[1];
@@ -219,5 +243,7 @@ public class HttpServer {
         }
         return res;
     }
-    
+    public static void get(String rute, WebService s){
+        services.put(rute, s);
+    }
 }
