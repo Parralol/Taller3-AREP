@@ -89,7 +89,7 @@ public class HttpServer {
             if(!uriStr.equals("/favicon.ico")){
                 
             try{
-                String filename ="TALLER2_AREP/src/main/resources/public"+ uriStr;
+                String filename ="Taller3-AREP/src/main/resources/public"+ uriStr;
                 System.out.println(filename);
                 if(context.equals(HttpContext.getHtml())){
                     BufferedReader reader = new BufferedReader(new FileReader(filename));
@@ -106,7 +106,7 @@ public class HttpServer {
             }catch(Exception e){
                 System.out.println("An error occurred.");
                 e.printStackTrace();
-                BufferedReader reader = new BufferedReader(new FileReader("TALLER2_AREP/src/main/resources/public/error.html"));
+                BufferedReader reader = new BufferedReader(new FileReader("Taller3-AREP\\src\\main\\resources\\public\\error.html"));
                 String linea = null;
                 while((linea = reader.readLine()) != null ){
                     res += linea;
