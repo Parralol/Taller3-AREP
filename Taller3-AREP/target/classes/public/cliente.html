@@ -4,18 +4,45 @@
         <title>Form Example</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
         <link rel = "stylesheet" href= "prueba.css">
+        <style>
+            body {
+                background-color: linen;
+              }
+              
+              h1 {
+                color: maroon;
+                margin-left: 40px;
+              }
+
+        </style>
         <script type="text/javascript" src="prueba.js"></script>
     </head>
     <body>
         <h1>Form with GET</h1>
-        <img src="xd.jpg">
-        <form action="/cliente">
-            <label for="name">Name:</label><br>
-            <input type="text" id="name" name="name" value="John"><br><br>
-            <input type="button" value="Submit" onclick="loadGetMsg()">
-        </form> 
-        <div id="getrespmsg"></div>
+        <form action="/recieve" method="POST" enctype="multipart/form-data">
+            <label for="file">Elige un archivo:</label><br>
+            <input type="file" id="file" name="file"><br><br>
+            <input type="button" value="Upload (POST)" onclick="uploadFile('POST')">
+        </form>
         
+            <div id="uploadMsg"></div>
+        
+            <script>
+                function uploadFile(method) {
+                    const fileInput = method === 'POST' ? document.getElementById("file") : document.getElementById("fileGet");
+                    const file = fileInput.files[0];
+                    const formData = new FormData();
+                    formData.append("file", file);
+        
+                    const xhr = new XMLHttpRequest();
+                    xhr.onload = function () {
+                        document.getElementById("uploadMsg").innerHTML = this.responseText;
+                    };
+                    xhr.open(method, "/recieve");
+                    xhr.send(formData);
+                }
+            </script>
     </body>
 </html>
