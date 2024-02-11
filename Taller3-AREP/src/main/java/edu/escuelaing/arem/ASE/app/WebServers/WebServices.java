@@ -5,6 +5,9 @@ import java.io.IOException;
 public class WebServices {
     
     public static void main(String[] args) throws IOException{
+
+        HttpServer.get("/recieve", str -> HttpServer.getResource(str));
+
         HttpServer.get("/arep", (p) ->{ 
             
             String  resp = "HTTP/1.1 200 OK\r\n"

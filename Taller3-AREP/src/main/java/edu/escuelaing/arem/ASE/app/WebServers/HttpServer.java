@@ -1,40 +1,38 @@
 package edu.escuelaing.arem.ASE.app.WebServers;
 
 import java.net.*;
+import java.nio.file.Files;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 
-import edu.escuelaing.arem.ASE.app.SparkLike.MySpark;
-
 import java.io.*;
 
- 
 public class HttpServer {
 
-    private static HttpServer _instance= new  HttpServer();
-    private static Map<String, WebService> services = new HashMap<String, WebService>();
+    private static HttpServer _instance = new HttpServer();
     private static String key = "&apikey=b5ed8d05";
     private static String url = "http://www.omdbapi.com/?t=";
-    private static Map<String, String> cache = new HashMap<String, String>();
-    
-    private HttpServer(){}
-    public static  HttpServer getInstance(){
+    private static Map<String, WebService> services = new HashMap<String, WebService>();
+
+    private HttpServer() {
+    }
+
+    public static HttpServer getInstance() {
         return _instance;
     }
-    public static void runServer(String[] args) throws IOException {
-        MySpark prueba = MySpark.getInstance();
-        boolean newSearch= true;
+
+    public void runServer(String[] args) throws IOException {
         ServerSocket serverSocket = null;
-        
         try {
             serverSocket = new ServerSocket(35000);
         } catch (IOException e) {
             System.err.println("Could not listen on port: 35000.");
             System.exit(1);
         }
- 
+
         boolean running = true;
         while (running) {
             Socket clientSocket = null;
@@ -45,139 +43,58 @@ public class HttpServer {
                 System.err.println("Accept failed.");
                 System.exit(1);
             }
- 
+
             PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
             BufferedReader in = new BufferedReader(
                     new InputStreamReader(
                             clientSocket.getInputStream()));
             String inputLine, outputLine;
-            
+
             boolean firstLine = true;
             String uriStr = "";
-            int count = 0;
-            String request="";
-
-            outputLine = "";
-
-            try{
-                URI requestUri= new URI(uriStr);
-                String path = requestUri.getPath();
-                if(path.startsWith("/action")){
-                    String webUri = path.replace("/action", "");
-                    if(services.containsKey(webUri)){
-                        String p ="Poner val param";
-                        outputLine = services.get(webUri).handle(p);
-
-                    }
-                }
-            }catch(Exception e){
-
-            }
-            out.print(outputLine);
+            String context = "";
+            outputLine="";
             while ((inputLine = in.readLine()) != null) {
-                if(firstLine){
+                System.out.println("Received: " + inputLine);
+                if (inputLine.startsWith("GET")) {
+                    uriStr= inputLine.split(" ")[1];
+                    break;
+                }
+                }
+                try{
+                    URI requestUri= new URI(uriStr);
+                    String path = requestUri.getPath();
+                    if(path.startsWith("/action")){
+                        String webUri = path.replace("/action", "");
+                        if(services.containsKey(webUri)){
+                            String p = requestUri.getQuery();
+                            outputLine = services.get(webUri).handle(p);
+    
+                        }
+                    }
+                }catch(Exception e){
+                    outputLine = "HTTP/1.1 400 Not Found\r\n"
+                    + "Content-Type: " + context
+                    + "\r\n";
+                }
+            try{
+                //context = getHttpContext(uriStr);
+            }catch(Exception e)
+            {}
+            while ((inputLine = in.readLine()) != null) {
+                if (firstLine) {
                     uriStr = inputLine.split(" ")[1];
                     firstLine = false;
                 }
-                if(count == 0){
-                    request = inputLine;
-                    newSearch=IsItNew(request);
-                    request = getQuery(request);
-                    count +=1;
-                    System.out.println(request+"<-------------- request");
-                    if(request.equals("")) newSearch=true;
-                }
-                uriStr = uriStr.split("\\?"+request)[0];
                 System.out.println("Received: " + inputLine);
                 if (!in.ready()) {
                     break;
                 }
             }
-            System.out.println(uriStr);
-            String context = HttpContext.getHtml();
+       
 
-            String[] urisp = uriStr.split("\\.");
-            System.out.println(Arrays.toString(urisp));
-            if(urisp.length >1){
-                if(urisp[1].equals("jpg") || urisp[1].equals("webp")){
-                     context = HttpContext.getImg();
-                }else if(urisp[1].equals("css")){
-                    context = HttpContext.getCss();
-                }else if(urisp[1].equals("js")){
-                    context = HttpContext.getJs();
-                }
-           }
-            String res = "HTTP/1.1 200 OK\r\n"
-            + "Content-Type:" + context +"\r\n";
-            OutputStream output = clientSocket.getOutputStream();
-            byte[] webpContent = {};
-            FileInputStream fin = null;
-            BufferedInputStream bin= null;
-            BufferedOutputStream bout= null;
-            if(!uriStr.equals("/favicon.ico")){
-                
-            try{
-                String filename ="Taller3-AREP/src/main/resources/public"+ uriStr;
-                System.out.println(filename);
-                if(context.equals(HttpContext.getHtml())){
-                    BufferedReader reader = new BufferedReader(new FileReader(filename));
-                    String linea = null;
-                    while((linea = reader.readLine()) != null ){
-                        res += linea;
-                    }
-                    reader.close();
-                }else{
-                   fin = new FileInputStream(filename);
-                   bin = new BufferedInputStream(fin);
-                   bout = new BufferedOutputStream(output);
-                }
-            }catch(Exception e){
-                System.out.println("An error occurred.");
-                e.printStackTrace();
-                BufferedReader reader = new BufferedReader(new FileReader("Taller3-AREP\\src\\main\\resources\\public\\error.html"));
-                String linea = null;
-                while((linea = reader.readLine()) != null ){
-                    res += linea;
-                }
-                reader.close();
-            }
-        }
-           
-            if(!uriStr.equals("/favicon.ico") && context.equals(HttpContext.getHtml())){
-                    try (BufferedOutputStream bos = new BufferedOutputStream(output)) {
-                        
-                        if(!newSearch){
-                            String inline = "";
-                            if(cache.containsKey(request)){
-                                inline = cache.get(request);
-                            }else{
-                                inline = getJson(request);
-                            }
-                            cache.put(request, inline);
-                            System.out.println(inline);
-                            res = ( "HTTP/1.1 200 OK\r\n"
-                            + "Content-Type:" + context +"\r\n"+inline+"");
-                        }else{
-                            newSearch=false;
-                        }
-                        bos.write(res.getBytes());
-                        bos.write(webpContent);
-                        bos.flush();
-                    }
-            }else{
-                if(!uriStr.equals("/favicon.ico")){
-                out.println(res);
-                int ch =0; ;  
-                while((ch=bin.read())!=-1)  
-                {  
-                bout.write(ch);  
-                }  
-                  
-                bin.close();  
-                fin.close();  
-                bout.close(); 
-                }
-            }
+            out.println(outputLine);
+
             out.close();
             in.close();
             clientSocket.close();
@@ -185,30 +102,67 @@ public class HttpServer {
         serverSocket.close();
     }
 
+    private static String httpError() {
+        String outputLine = "HTTP/1.1 400 Not Found\r\n"
+                + "Content-Type:text/html\r\n"
+                + "\r\n"
+                + "<!DOCTYPE html>\n"
+                + "<html>\n"
+                + "    <head>\n"
+                + "        <title>Error Not found</title>\n"
+                + "        <meta charset=\"UTF-8\">\n"
+                + "        <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n"
+                + "    </head>\n"
+                + "    <body>\n"
+                + "        <h1>Error</h1>\n"
+                + "    </body>\n";
+        return outputLine;
+
+    }
+
+    static String getResource(String resource) {
+        String res = "";
+        String context = "";
+        String query = getQuery(resource);
+        System.out.println(query + "<----------- query");
+        String header ="";
+        try {
+           context = getHttpContext(resource);
+
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+        header = generateHeader(context);
+        res +=header;
+        String body = generateBody(context,new File("Taller3-AREP/src/main/resources/public/"+ query));
+        res += body;
+        return res;
+    }
+
     /**
      * Allows to split the GET or POST request just to get the query
+     * 
      * @param text
      * @return
      */
-    private static String getQuery(String text){
-        String[] deco1 = text.split(" ");
-        String[] deco2 = deco1[1].split("\\?");
+    private static String getQuery(String text) {
+        String[] deco2 = text.split("\\=");
         System.out.println(Arrays.toString(deco2));
-        if(deco2.length >=2){
+        if (deco2.length >= 2) {
             String[] deco3 = deco2[1].split("\\#");
             return deco3[0];
-        }else{
+        } else {
             return deco2[0];
         }
     }
 
-    private static boolean IsItNew(String text){
+    private static boolean IsItNew(String text) {
         String[] deco1 = text.split(" ");
         String[] deco2 = deco1[1].split("\\?");
         System.out.println(Arrays.toString(deco2));
-        if(deco2.length >=2){
+        if (deco2.length >= 2) {
             return false;
-        }else{
+        } else {
             return true;
         }
 
@@ -216,17 +170,18 @@ public class HttpServer {
 
     /**
      * Permite recibir el Json que se esta buscando
+     * 
      * @param request
      * @return
      */
-    private static String getJson(String request){
+    private static String getJson(String request) {
         String[] requests = request.split("=");
-        String res ="";
-        if(requests.length > 1){
-            String defurl = url + requests[1]+key;
+        String res = "";
+        if (requests.length > 1) {
+            String defurl = url + requests[1] + key;
             System.out.println(defurl);
-            
-            try{
+
+            try {
                 URL api = new URL(defurl);
                 HttpURLConnection connection = (HttpURLConnection) api.openConnection();
                 connection.setRequestMethod("GET");
@@ -235,19 +190,114 @@ public class HttpServer {
                 System.out.println("CONNECTION STATUS" + "----->  " + responsecode);
                 String inline = "";
                 Scanner scanner = new Scanner(api.openStream());
-                    
+
                 while (scanner.hasNext()) {
                     inline += scanner.nextLine();
                 }
                 scanner.close();
-                res = inline;     
-            }catch(IOException e){
-                        System.out.println(e.getMessage());
+                res = inline;
+            } catch (IOException e) {
+                System.out.println(e.getMessage());
             }
         }
         return res;
     }
-    public static void get(String rute, WebService s){
+
+    public static void get(String rute, WebService s) {
         services.put(rute, s);
     }
+
+    private static String generateBody(String context, File filename){
+        String res = "no funciona";
+        try{
+            if(context.equals(HttpContext.getHtml())){
+                StringBuilder body = generateString(filename);
+                res = "" + body;
+            }
+
+            if(context.equals(HttpContext.getImg())){
+                byte[] bytes = Files.readAllBytes(filename.toPath());
+                String base64 = Base64.getEncoder().encodeToString(bytes);
+                    res = "<!DOCTYPE html>\r\n"
+                        + "<html>\r\n"
+                        + "    <head>\r\n"
+                        + "        <title>Resultado</title>\r\n"
+                        + "    </head>\r\n"
+                        + "    <body>\r\n"
+                        + "         <center><img src=\"data:image/jpeg;base64," + base64 + "\" alt=\"image\"></center>" + "\r\n"
+                        + "    </body>\r\n"
+                        + "</html>";
+                }
+            if(context.equals(HttpContext.getCss())){
+                StringBuilder body = generateString(filename);
+                return "HTTP/1.1 200 OK\r\n"
+                        + "Content-Type: text/html\r\n"
+                        + "\r\n"
+                        + "<!DOCTYPE html>\r\n" + //
+                        "<html>\r\n" + //
+                        "    <head>\r\n" + //
+                        "        <meta charset=\"UTF-8\">\r\n" + //
+                        "    </head>\r\n" + //
+                        "    <body>\r\n" + //
+                        "        <pre>" + body + "</pre>\r\n" + //
+                        "    </body>\r\n" + //
+                        "</html>";
+            } if(context.equals(HttpContext.getJs())){
+                StringBuilder body = generateString(filename);
+                res = "HTTP/1.1 200 OK\r\n"
+                        + "Content-Type: text/html\r\n"
+                        + "\r\n"
+                        + "<!DOCTYPE html>\r\n" + //
+                        "<html>\r\n" + //
+                        "    <head>\r\n" + //
+                        "        <meta charset=\"UTF-8\">\r\n" + //
+                        "    </head>\r\n" + //
+                        "    <body>\r\n" + //
+                        "        <pre>" + body + "</pre>\r\n" + //
+                        "    </body>\r\n" + //
+                        "</html>";
+            }
+        }catch(Exception e){
+            res = httpError();
+        }
+        System.out.println(res + "<---------- res");
+        return res;
+        }
+    private static String getHttpContext(String uriStr) throws URISyntaxException{
+        URI requestUri= new URI(uriStr);
+        String path = requestUri.getPath();
+        System.out.println(path + "<-------------- uriStr ");
+        String context = HttpContext.getHtml();
+
+        String[] urisp = uriStr.split("\\.");
+        System.out.println(Arrays.toString(urisp));
+        if(urisp.length >1){
+            if(urisp[1].equals("jpg") || urisp[1].equals("webp")){
+                 context = HttpContext.getImg();
+            }else if(urisp[1].equals("css")){
+                context = HttpContext.getCss();
+            }else if(urisp[1].equals("js")){
+                context = HttpContext.getJs();
+            }
+        }
+        return context;
+    }
+    private static String generateHeader(String context){
+        if(context.equals(HttpContext.getImg())) context = HttpContext.getHtml();
+
+        String outputLine = "HTTP/1.1 200 OK\r\n"
+        + "Content-Type:"+context + "\r\n";
+        return outputLine;
+    }
+    public static StringBuilder generateString(File file) throws IOException {
+        StringBuilder body = new StringBuilder();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
+        String line;
+        while ((line = reader.readLine()) != null) {
+            body.append(line).append("\n");
+        }
+        reader.close();
+        return body;
+    }
+
 }
