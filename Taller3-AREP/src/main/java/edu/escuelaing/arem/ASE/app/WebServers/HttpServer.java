@@ -131,7 +131,7 @@ public class HttpServer {
         }
         header = generateHeader(context);
         res +=header;
-        String body = generateBody(context,new File("Taller3-AREP/src/main/resources/public/"+ query));
+        String body = generateBody(context,new File("Taller3-AREP\\src\\main\\resources\\public"+ query));
         res += body;
         return res;
     }
