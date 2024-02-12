@@ -6,11 +6,11 @@ Para usar apropiadamente el programa se debe ejecutar el ciclo de vida en MAVEN 
 
 para poder ver mas a fondo los paths involucrados, se adjuntaran las URIS necesarias para observar los distintos comportamientos
 
-  * http://localhost:35000/cliente.html
-  * http://localhost:35000/error.html
-  * http://localhost:35000/prueba.css
-  * http://localhost:35000/prueba.wepb
-  * http://localhost:35000/xd.jpg
+  * http://localhost:35000/action/recieve?cliente.html
+  * http://localhost:35000/action/recieve?error.html
+  * http://localhost:35000/action/recieve?prueba.css
+  * http://localhost:35000/action/recieve?prueba.wepb
+  * http://localhost:35000/action/recieve?xd.jpg
 
 ### Extensibilidad
 
