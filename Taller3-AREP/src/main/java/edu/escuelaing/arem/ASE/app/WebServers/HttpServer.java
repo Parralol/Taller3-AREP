@@ -69,13 +69,10 @@ public class HttpServer {
                         if(services.containsKey(webUri)){
                             String p = requestUri.getQuery();
                             outputLine = services.get(webUri).handle(p);
-    
-                        }
                     }
+                }
                 }catch(Exception e){
-                    outputLine = "HTTP/1.1 400 Not Found\r\n"
-                    + "Content-Type: " + context
-                    + "\r\n";
+                    
                 }
             try{
                 //context = getHttpContext(uriStr);
@@ -209,6 +206,7 @@ public class HttpServer {
 
     private static String generateBody(String context, File filename){
         String res = "no funciona";
+        System.out.println(context);
         try{
             if(context.equals(HttpContext.getHtml())){
                 StringBuilder body = generateString(filename);
