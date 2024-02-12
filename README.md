@@ -62,6 +62,8 @@ Ahora, si deseamos acceder a los archivos en otra forma, es solo escribir el arc
  
   >  mvn test-compile -f "Directorio correspondiente del archivo"
 
+  o ejecutar desde el IDE de preferencia
+
 ## Despliegue
 
   El siguiente programa no se encuentra desplegado
