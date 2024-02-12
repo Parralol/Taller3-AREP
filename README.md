@@ -18,7 +18,7 @@ Lo unico que necesitas para extender la funcionalidad de este programa es que ag
 
 ### Diseño
 
-  Este programa sigue el Principio Open/Closed, ya que no es un proyecto lo suficientemente grande para aplicar todo el principio SOLID, se usa el patron builder ya que se construye procedimentalmente una clase compleja a base de pasos pequeños y simples.
+  Este programa sigue el Principio Open/Closed, ya que no es un proyecto lo suficientemente grande para aplicar todo el principio SOLID, se usa el patron Singleton para el HTTPServer, ademas de Builder 
 
 #### PRUEBAS REALIZADAS
  todas las pruebas realizadas fueron de aceptacion, a la hora de probar el programa con diferentes parametros y verificando si tiene el comportamiento deseado
@@ -27,14 +27,24 @@ Lo unico que necesitas para extender la funcionalidad de este programa es que ag
    se usan las siguentes URI con  el fin de verificar la existencia de los archivos, ademas de inspeccionar el elemento
 
    nosotros contamos los siguientes archivos:
-   
+
+   ![image](https://github.com/Parralol/Taller3-AREP/assets/110953563/c9988a8c-5ae8-4c2b-8aa5-6a256062e8bf)
+
 
 Para verificar que existan iniciaremos el programa y usaremos inspeccionar elemento en el browser de preferencia,podremos observar que los archivos vitales son subidos a la misma pagina:
 
 
+![image](https://github.com/Parralol/Taller3-AREP/assets/110953563/47126c36-621a-44c7-87be-2d9c0a545104)
+
+![image](https://github.com/Parralol/Taller3-AREP/assets/110953563/0f90442e-dbd0-440b-a684-7946bedf2204)
+
+![image](https://github.com/Parralol/Taller3-AREP/assets/110953563/6e8c1a4b-6cb0-4925-9060-3495579b98c6)
+
+
+
 y Como podremos observar, la pagina cargara correctamente:
 
-Se realizo una consulta restApi antes de esto para poder mostrar que todo esta funcionando correctamente, inclusive cargando el CSS correcto de la pagina.
+![image](https://github.com/Parralol/Taller3-AREP/assets/110953563/3694639c-a7e5-4418-9834-c9a0cf5126ae)
 
 Ahora, si deseamos acceder a los archivos en otra forma, es solo escribir el archivo en el path respectivo
 
@@ -47,7 +57,10 @@ Ahora, si deseamos acceder a los archivos en otra forma, es solo escribir el arc
   * MAVEN
 
 ### Respecto a la instalacion
-  No se debe tener nada especial para realizar la instalacion del programa o su empaquetamiento a jar.
+
+ Para compilar y testear el programa:
+ 
+  >  mvn test-compile -f "Directorio correspondiente del archivo"
 
 ## Despliegue
 
