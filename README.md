@@ -60,7 +60,7 @@ Ahora, si deseamos acceder a los archivos en otra forma, es solo escribir el arc
 
  Para compilar y testear el programa:
  
-  >  mvn test-compile -f "Directorio correspondiente del archivo"
+  >  mvn test-compile -f "Taller3-AREP-main/Taller3-AREP/pom.xml"
 
   o ejecutar desde el IDE de preferencia
 
