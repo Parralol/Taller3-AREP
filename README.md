@@ -62,6 +62,10 @@ Ahora, si deseamos acceder a los archivos en otra forma, es solo escribir el arc
  
   >  mvn test-compile -f "Taller3-AREP-main/Taller3-AREP/pom.xml"
 
+  o desde el directorio "Taller3-AREP-main/Taller3-AREP"
+ 
+  > mvn exec:java -e -Dexec'.mainClass'="edu.escuelaing.arem.ASE.app.WebServers.WebServices"
+
   o ejecutar desde el IDE de preferencia
 
 ## Despliegue
