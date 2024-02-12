@@ -48,6 +48,12 @@ y Como podremos observar, la pagina cargara correctamente:
 
 Ahora, si deseamos acceder a los archivos en otra forma, es solo escribir el archivo en el path respectivo
 
+#### DESDE LINUX
+
+Aqui podemos observar al sistema corriendo en linux (Debian)
+
+![image](https://github.com/Parralol/Taller3-AREP/assets/110953563/9656937d-4b60-47e8-be6f-f5cf632838a8)
+
 
 
 ### Prerequisitos
